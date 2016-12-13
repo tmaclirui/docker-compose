@@ -1,0 +1,43 @@
+version: '2'
+services:
+#web server
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # app
+      - ./app/src/:/usr/share/nginx/html
+      # nginx configs
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    links:
+      - fpm:fpm-php7
+
+  fpm:
+    build: ./php-fpm
+    ports:
+     - "9000"
+    volumes:
+     - ./app/src/:/usr/share/nginx/html
+     # Your php.ini
+     - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
+    # environment:
+      # Set your APP env variables here:
+      # - APP_KEY =
+      # - DB_HOST =
+      # - DB_DATABASE =
+      # - DB_USERNAME =
+      # - DB_PASSWORD =
+    links:
+     - mysql:mysql
+  # database
+  mysql:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql123
